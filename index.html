@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canteen Menu</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Add these new styles */
+        body {
+            overflow-y: auto;
+        }
+        .food-grid {
+            max-height: 400px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 4 columns */
+            gap: 10px; /* Space between cards */
+            overflow-y: auto;
+            border: 2px solid black;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .food-counter {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .admin-container {
+            max-height: 80vh; /* Added scrollbar */
+            overflow-y: auto; /* Added scrollbar */
+            border: 2px solid black;
+            padding: 15px;
+            border-radius: 5px;
+            background: white;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+        }
+        .bill-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 500px;
+            width: 90%;
+            animation: billSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        @keyframes billSlideIn {
+            0% { transform: translate(-50%, 150%); opacity: 0; }
+            100% { transform: translate(-50%, -50%); opacity: 1; }
+        }
+
+        .payment-confetti {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2000;
+        }
+
+        .payment-success-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #4CAF50;
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 2001;
+            animation: paymentSuccess 0.8s ease;
+        }
+
+        @keyframes paymentSuccess {
+            0% { transform: translate(-50%, -40%) scale(0.5); opacity: 0; }
+            70% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ffd700;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bubbles">
+        <span style="left: 10%"></span>
+        <span style="left: 30%"></span>
+        <span style="left: 50%"></span>
+        <span style="left: 70%"></span>
+    </div>
+
+    <div class="graphic"></div>
+
+    <div class="container">
+        <button onclick="history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+        <h1><i class="fas fa-utensils"></i> College Canteen Menu</h1>
+        
+        <!-- Student Details Form -->
+        <div class="student-details">
+            <h2><i class="fas fa-user"></i> Student Details</h2>
+            <div class="form-group">
+                <input type="text" id="studentName" placeholder="Student Name" required>
+            </div>
+            <div class="form-group">
+                <input type="tel" id="studentPhone" placeholder="Phone Number" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="studentClass" placeholder="Class & Section" required>
+            </div>
+        </div>
+
+        <div class="food-grid" id="foodMenu"></div>
+        
+        <h2><i class="fas fa-shopping-cart"></i> Your Cart</h2>
+        <div id="cart"></div>
+        
+        <button onclick="generateBill()" class="animated-button">
+            <i class="fas fa-receipt"></i> Generate Bill
+        </button>
+    </div>
+
+    <!-- Bill Template -->
+    <div class="bill-container" id="billContainer" style="display: none;">
+        <div class="bill-header">
+            <h2><i class="fas fa-receipt"></i> Canteen Bill</h2>
+            <div class="bill-meta">
+                <span>Date: <span id="billDate"></span></span>
+                <span>Order ID: #<span id="orderId"></span></span>
+            </div>
+        </div>
+        
+        <div class="bill-items" id="billItems"></div>
+        
+        <div class="bill-total">
+            <span>Total Amount:</span>
+            <span>₹<span id="totalAmount"></span></span>
+        </div>
+        
+        <div class="bill-actions">
+            <button onclick="handlePayment()" class="payment-btn">
+                <i class="fas fa-credit-card"></i> Proceed to Pay
+            </button>
+            <button onclick="printBill()" class="print-btn">
+                <i class="fas fa-print"></i> Print Bill
+            </button>
+            <button onclick="closeBill()" class="close-btn">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Enhanced generateBill function
+        function generateBill() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const billContainer = document.getElementById('billContainer');
+            
+            // Get student details
+            const studentName = document.getElementById('studentName').value;
+            const studentPhone = document.getElementById('studentPhone').value;
+            const studentClass = document.getElementById('studentClass').value;
+
+            if (!studentName || !studentPhone || !studentClass) {
+                alert("Please fill in all student details!");
+                return;
+            }
+
+            // Generate random order ID
+            const orderId = Math.floor(Math.random() * 9000) + 1000;
+            
+            // Populate bill details
+            document.getElementById('billDate').textContent = new Date().toLocaleDateString();
+            document.getElementById('orderId').textContent = orderId;
+            document.getElementById('totalAmount').textContent = total;
+            
+            // Populate bill items
+            const billItems = document.getElementById('billItems');
+            billItems.innerHTML = cart.map(item => `
+                <div class="bill-item">
+                    <div class="item-row">
+                        <span>${item.name} x ${item.quantity}</span>
+                        <span>₹${item.price * item.quantity}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // Save order details to localStorage
+            const orderDetails = {
+                orderId: orderId,
+                studentName: studentName,
+                studentPhone: studentPhone,
+                studentClass: studentClass,
+                items: cart,
+                total: total,
+                date: new Date().toLocaleDateString()
+            };
+
+            let orders = JSON.parse(localStorage.getItem('orders')) || [];
+            orders.push(orderDetails);
+            localStorage.setItem('orders', JSON.stringify(orders));
+            
+            // Show bill with animation
+            billContainer.style.display = 'block';
+            document.body.classList.add('bill-open');
+        }
+
+        // New close bill function
+        function closeBill() {
+            document.getElementById('billContainer').style.display = 'none';
+            document.body.classList.remove('bill-open');
+        }
+
+        // Enhanced payment handling
+        function handlePayment() {
+            const paymentWindow = window.open("", "Payment", "width=600,height=400");
+            paymentWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Payment Gateway</title>
+                        <style>
+                            /* Payment gateway styles */
+                        </style>
+                    </head>
+                    <body>
+                        <!-- Payment gateway content -->
+                    </body>
+                </html>
+            `);
+
+            // Listen for payment completion
+            const paymentCheck = setInterval(() => {
+                if(paymentWindow.closed) {
+                    clearInterval(paymentCheck);
+                    showPaymentSuccess();
+                }
+            }, 500);
+        }
+
+        // Enhanced payment success animation
+        function showPaymentSuccess() {
+            // Create confetti effect
+            const confettiCount = 50;
+            const container = document.createElement('div');
+            container.className = 'payment-confetti';
+            
+            for(let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 50%)`;
+                container.appendChild(confetti);
+            }
+            
+            document.body.appendChild(container);
+            
+            // Create success card
+            const successCard = document.createElement('div');
+            successCard.className = 'payment-success-card';
+            successCard.innerHTML = `
+                <i class="fas fa-check-circle fa-3x"></i>
+                <div>
+                    <h3>Payment Successful! 🎉</h3>
+                    <p>₹${cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)} received</p>
+                    <small>Order ID: #${document.getElementById('orderId').textContent}</small>
+                </div>
+            `;
+            
+            document.body.appendChild(successCard);
+            
+            // Cleanup after animation
+            setTimeout(() => {
+                successCard.remove();
+                container.remove();
+                closeBill();
+                cart = [];
+                localStorage.setItem('cart', JSON.stringify(cart));
+                updateCart();
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

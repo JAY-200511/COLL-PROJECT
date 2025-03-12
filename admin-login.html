@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Add a container for the login form */
+        .login-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 400px;
+            margin: 20px auto; /* Center the container */
+            max-height: 80vh; /* Added scrollbar */
+            overflow-y: auto; /* Added scrollbar */
+        }
+
+        /* Custom Scrollbar */
+        .login-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .login-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .login-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        .login-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="bubbles">
+        <span style="left: 10%"></span>
+        <span style="left: 50%"></span>
+        <span style="left: 70%"></span>
+        <span style="left: 90%"></span>
+    </div>
+
+    <div class="login-wrapper">
+        <div class="login-container">
+            <h2><i class="fas fa-shield-alt"></i> Admin Login</h2>
+            <form onsubmit="loginAdmin(event)" class="animated-form">
+                <div class="form-group">
+                    <i class="fas fa-user-tie"></i>
+                    <input type="text" id="username" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-unlock-alt"></i> Login
+                </button>
+            </form>
+        </div>
+    </div>
+    <script>
+        function loginAdmin(event) {
+            event.preventDefault();
+            location.href = "admin.html";
+        }
+    </script>
+</body>
+</html>

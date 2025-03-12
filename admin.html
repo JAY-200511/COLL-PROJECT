@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            overflow-y: auto;
+        }
+        .food-grid {
+            max-height: 400px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 4 columns */
+            gap: 10px; /* Space between cards */
+            overflow-y: auto;
+            border: 2px solid black;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .food-counter {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .admin-container {
+            max-height: 80vh; /* Added scrollbar */
+            overflow-y: auto; /* Added scrollbar */
+            border: 2px solid black;
+            padding: 15px;
+            border-radius: 5px;
+            background: white;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+        }
+        /* Order Cards */
+.order-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.order-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.order-items {
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+}
+    </style>
+</head>
+<body>
+    <div class="bubbles">
+        <span style="left: 20%"></span>
+        <span style="left: 40%"></span>
+        <span style="left: 60%"></span>
+        <span style="left: 80%"></span>
+    </div>
+
+    <div class="admin-container">
+        <button onclick="history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+        <h2><i class="fas fa-tools"></i> Admin Panel</h2>
+        <form id="foodForm" class="animated-form">
+            <div class="form-group">
+                <i class="fas fa-utensils"></i>
+                <input type="text" id="foodName" placeholder="Food Name" required>
+            </div>
+            <div class="form-group">
+                <i class="fas fa-rupee-sign"></i>
+                <input type="number" id="foodPrice" placeholder="Price (₹)" required>
+            </div>
+            <div class="form-group">
+                <i class="fas fa-list"></i>
+                <select id="foodCategory">
+                    <option value="special">Special Dish</option>
+                    <option value="snacks">Snacks</option>
+                    <option value="maincourse">Main Course</option>
+                    <option value="drinks">drinks</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <div class="file-input-wrapper">
+                    <i class="fas fa-file-upload"></i>
+                    <input type="file" id="foodImage" accept="image/*">
+                    <label for="foodImage" class="file-label">Choose Image</label>
+                </div>
+            </div>
+            <button type="submit" class="animated-button">
+                <i class="fas fa-plus-circle"></i> Add Food Item
+            </button>
+        </form>
+
+        <h2><i class="fas fa-pizza-slice"></i> Food List</h2>
+        <div id="foodCounter" class="food-counter">Total Food Items: 0</div>
+        <div id="foodList" class="food-grid"></div>
+
+        <h2><i class="fas fa-receipt"></i> Orders</h2>
+        <div id="orderList" class="order-grid"></div>
+    </div>
+    
+    <script>
+        // Combined load event listener
+        window.addEventListener('load', function() {
+            updateFoodCounter();
+            loadOrders();
+        });
+    
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const orderList = document.getElementById('orderList');
+            orderList.innerHTML = orders.map(order => `
+                <div class="order-card">
+                    <h3>Order ID: #${order.orderId}</h3>
+                    <p>Student Name: ${order.studentName}</p>
+                    <p>Phone: ${order.studentPhone}</p>
+                    <p>Class: ${order.studentClass}</p>
+                    <p>Date: ${order.date}</p>
+                    <p>Total: ₹${order.total}</p>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="order-item">
+                                <span>${item.name} x ${item.quantity}</span>
+                                <span>₹${item.price * item.quantity}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+    <script src="admin.js"></script>
+</body>
+</html>
